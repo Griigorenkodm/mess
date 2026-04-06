@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Messenger</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app-header">
+        <h1>Messenger</h1>
+        <div class="header-right">
+          <button id="theme-btn" class="theme-btn" type="button">Тема: Ночь</button>
+          <div id="auth-user" class="auth-user">Не авторизован</div>
+          <button id="logout-btn" class="logout-btn" type="button">Выйти</button>
+          <div id="status" class="status disconnected">Отключено</div>
+        </div>
+      </header>
+
+      <form id="auth-form" class="auth-form" autocomplete="off">
+        <input
+          id="auth-username"
+          class="input"
+          type="text"
+          maxlength="24"
+          placeholder="Логин"
+          required
+        />
+        <input
+          id="auth-password"
+          class="input"
+          type="password"
+          maxlength="64"
+          placeholder="Пароль"
+          required
+        />
+        <button id="register-btn" class="send-btn" type="button">Регистрация</button>
+        <button id="login-btn" class="send-btn" type="button">Войти</button>
+      </form>
+
+      <section class="chat-layout">
+        <aside class="rooms-panel">
+          <div class="rooms-title">Чаты</div>
+          <div id="rooms" class="rooms-list"></div>
+          <form id="create-room-form" class="create-room-form">
+            <input
+              id="room-name"
+              class="input"
+              type="text"
+              maxlength="32"
+              placeholder="Новый чат"
+              required
+            />
+            <button class="send-btn" type="submit">Создать</button>
+          </form>
+        </aside>
+
+        <section id="messages" class="messages" aria-live="polite"></section>
+      </section>
+
+      <form id="chat-form" class="chat-form" autocomplete="off">
+        <input
+          id="message"
+          class="input"
+          type="text"
+          maxlength="500"
+          placeholder="Введите сообщение..."
+          required
+        />
+        <button class="send-btn" type="submit">Отправить</button>
+      </form>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

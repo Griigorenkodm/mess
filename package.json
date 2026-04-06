@@ -1,0 +1,22 @@
+{
+  "name": "simple-messenger-js",
+  "version": "1.0.0",
+  "description": "Simple real-time messenger on JavaScript",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "start:public": "node server.js --public",
+    "load:200": "node scripts/load-test.js 200 3 ws://127.0.0.1:3000",
+    "daemon:start": "pm2 start server.js --name messenger -- --public",
+    "daemon:stop": "pm2 stop messenger",
+    "daemon:restart": "pm2 restart messenger",
+    "daemon:status": "pm2 status"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "localtunnel": "^2.0.2",
+    "pm2": "^6.0.13",
+    "ws": "^8.18.3"
+  }
+}
