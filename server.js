@@ -11,6 +11,7 @@ const PUBLIC_DIR = path.join(__dirname, "public");
 const DATA_DIR = path.join(__dirname, "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const ROOMS_FILE = path.join(DATA_DIR, "rooms.json");
+const DMS_FILE = path.join(DATA_DIR, "dms.json");
 const ENABLE_PUBLIC_TUNNEL =
   process.argv.includes("--public") || process.env.PUBLIC_TUNNEL === "1";
 const LOCALTUNNEL_SUBDOMAIN =
@@ -98,6 +99,7 @@ function normalizeHistory(items) {
 
 const users = new Map();
 const rooms = createDefaultRooms();
+const dmStore = new Map();
 let saveTimer = null;
 
 function loadState() {
@@ -120,6 +122,15 @@ function loadState() {
       });
     }
   }
+
+  const loadedDms = readJsonSafe(DMS_FILE, []);
+  if (Array.isArray(loadedDms)) {
+    for (const dm of loadedDms) {
+      if (!dm || typeof dm !== "object") continue;
+      if (typeof dm.key !== "string") continue;
+      dmStore.set(dm.key, normalizeDmHistory(dm.history));
+    }
+  }
 }
 
 function persistState() {
@@ -131,8 +142,13 @@ function persistState() {
       name: room.name,
       history: normalizeHistory(room.history),
     }));
+    const dmsArr = [...dmStore.entries()].map(([key, history]) => ({
+      key,
+      history: normalizeDmHistory(history),
+    }));
     fs.writeFileSync(USERS_FILE, JSON.stringify(usersObj, null, 2), "utf8");
     fs.writeFileSync(ROOMS_FILE, JSON.stringify(roomsArr, null, 2), "utf8");
+    fs.writeFileSync(DMS_FILE, JSON.stringify(dmsArr, null, 2), "utf8");
   } catch (error) {
     console.error("Save state failed:", error.message);
   }
@@ -150,6 +166,10 @@ loadState();
 
 function roomList() {
   return [...rooms.values()].map((room) => ({ id: room.id, name: room.name }));
+}
+
+function userList() {
+  return [...users.keys()].sort((a, b) => a.localeCompare(b, "ru"));
 }
 
 function sendToClient(ws, payload) {
@@ -180,6 +200,10 @@ function broadcast(payload) {
   }
 }
 
+function broadcastUsers() {
+  broadcast({ type: "users", payload: userList() });
+}
+
 function broadcastToRoom(roomId, payload) {
   const json = JSON.stringify(payload);
   for (const client of wss.clients) {
@@ -192,6 +216,47 @@ function broadcastToRoom(roomId, payload) {
 function sanitizeRoomName(name) {
   if (typeof name !== "string") return "";
   return name.trim().slice(0, 32);
+}
+
+function normalizeDmHistory(items) {
+  if (!Array.isArray(items)) return [];
+  return items
+    .filter(
+      (item) =>
+        item &&
+        typeof item === "object" &&
+        typeof item.id === "string" &&
+        typeof item.from === "string" &&
+        typeof item.to === "string" &&
+        typeof item.text === "string" &&
+        typeof item.createdAt === "string"
+    )
+    .slice(-MAX_HISTORY_PER_ROOM);
+}
+
+function dmKey(a, b) {
+  return [a, b].sort((x, y) => x.localeCompare(y, "ru")).join("::");
+}
+
+function sendDmHistory(ws, peerUser) {
+  if (!ws.user) return;
+  const key = dmKey(ws.user, peerUser);
+  const history = dmStore.get(key) || [];
+  sendToClient(ws, {
+    type: "dm_history",
+    payload: {
+      withUser: peerUser,
+      history,
+    },
+  });
+}
+
+function sendDmToUser(user, payload) {
+  for (const client of wss.clients) {
+    if (client.readyState !== WebSocket.OPEN) continue;
+    if (client.user !== user) continue;
+    sendToClient(client, payload);
+  }
 }
 
 function makeRoomId(name) {
@@ -214,9 +279,11 @@ function makeRoomId(name) {
 wss.on("connection", (ws) => {
   ws.roomId = "general";
   ws.user = null;
+  ws.dmWithUser = null;
   ws.visitedRooms = new Set(["general"]);
   sendToClient(ws, { type: "auth_state", payload: { username: null } });
   sendToClient(ws, { type: "rooms", payload: roomList() });
+  sendToClient(ws, { type: "users", payload: userList() });
   sendToClient(ws, {
     type: "room_history",
     payload: {
@@ -252,6 +319,16 @@ wss.on("connection", (ws) => {
         return;
       }
 
+      if (data.type === "switch_dm") {
+        if (!ws.user) return;
+        const peerUser =
+          typeof data.withUser === "string" ? data.withUser.trim() : "";
+        if (!peerUser || peerUser === ws.user || !users.has(peerUser)) return;
+        ws.dmWithUser = peerUser;
+        sendDmHistory(ws, peerUser);
+        return;
+      }
+
       if (data.type === "auth") {
         const mode = data.mode === "register" ? "register" : "login";
         const username =
@@ -278,6 +355,7 @@ wss.on("connection", (ws) => {
           users.set(username, password);
           schedulePersist();
           ws.user = username;
+          broadcastUsers();
           sendToClient(ws, {
             type: "auth_state",
             payload: { username },
@@ -299,6 +377,7 @@ wss.on("connection", (ws) => {
         }
 
         ws.user = username;
+        broadcastUsers();
         sendToClient(ws, {
           type: "auth_state",
           payload: { username },
@@ -313,6 +392,8 @@ wss.on("connection", (ws) => {
 
       if (data.type === "logout") {
         ws.user = null;
+        ws.dmWithUser = null;
+        broadcastUsers();
         sendToClient(ws, { type: "auth_state", payload: { username: null } });
         return;
       }
@@ -325,6 +406,55 @@ wss.on("connection", (ws) => {
         rooms.set(roomId, { id: roomId, name: roomName, history: [] });
         schedulePersist();
         broadcast({ type: "rooms", payload: roomList() });
+        return;
+      }
+
+      if (data.type === "dm_message") {
+        if (!ws.user) {
+          sendToClient(ws, {
+            type: "error",
+            payload: { text: "Сначала зарегистрируйтесь или войдите." },
+          });
+          return;
+        }
+
+        const toUser = typeof data.toUser === "string" ? data.toUser.trim() : "";
+        const text =
+          typeof data.text === "string" && data.text.trim()
+            ? data.text.trim().slice(0, 500)
+            : "";
+        if (!toUser || toUser === ws.user || !users.has(toUser) || !text) return;
+
+        const message = {
+          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+          from: ws.user,
+          to: toUser,
+          text,
+          createdAt: new Date().toISOString(),
+        };
+
+        const key = dmKey(ws.user, toUser);
+        const history = dmStore.get(key) || [];
+        history.push(message);
+        if (history.length > MAX_HISTORY_PER_ROOM) history.shift();
+        dmStore.set(key, history);
+        schedulePersist();
+
+        const payload = {
+          type: "dm_message",
+          payload: {
+            withUser: toUser,
+            message,
+          },
+        };
+        sendDmToUser(ws.user, payload);
+        sendDmToUser(toUser, {
+          type: "dm_message",
+          payload: {
+            withUser: ws.user,
+            message,
+          },
+        });
         return;
       }
 
@@ -372,6 +502,12 @@ wss.on("connection", (ws) => {
         type: "error",
         payload: { text: "Некорректный формат сообщения." },
       });
+    }
+  });
+
+  ws.on("close", () => {
+    if (ws.user) {
+      broadcastUsers();
     }
   });
 });

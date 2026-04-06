@@ -4,6 +4,7 @@ const createRoomFormEl = document.getElementById("create-room-form");
 const messageEl = document.getElementById("message");
 const messagesEl = document.getElementById("messages");
 const roomsEl = document.getElementById("rooms");
+const usersEl = document.getElementById("users");
 const roomNameEl = document.getElementById("room-name");
 const authFormEl = document.getElementById("auth-form");
 const authUsernameEl = document.getElementById("auth-username");
@@ -13,14 +14,20 @@ const loginBtnEl = document.getElementById("login-btn");
 const authUserEl = document.getElementById("auth-user");
 const logoutBtnEl = document.getElementById("logout-btn");
 const themeBtnEl = document.getElementById("theme-btn");
+const modeRoomsBtnEl = document.getElementById("mode-rooms-btn");
+const modeDmsBtnEl = document.getElementById("mode-dms-btn");
+const sidebarTitleEl = document.getElementById("sidebar-title");
 
 const savedName = localStorage.getItem("chat_auth_username");
 if (savedName) authUsernameEl.value = savedName;
 
 let rooms = [];
+let users = [];
 let currentRoomId = localStorage.getItem("chat_room_id") || "general";
+let currentDmUser = localStorage.getItem("chat_dm_user") || "";
 let currentUser = null;
 let roomRestored = false;
+let chatMode = localStorage.getItem("chat_mode") === "dm" ? "dm" : "room";
 
 function applyTheme(theme) {
   const normalized = theme === "light" ? "light" : "dark";
@@ -37,6 +44,19 @@ function setStatus(isConnected) {
   statusEl.classList.toggle("disconnected", !isConnected);
 }
 
+function setChatMode(nextMode) {
+  chatMode = nextMode === "dm" ? "dm" : "room";
+  localStorage.setItem("chat_mode", chatMode);
+  const roomMode = chatMode === "room";
+  modeRoomsBtnEl.classList.toggle("active", roomMode);
+  modeDmsBtnEl.classList.toggle("active", !roomMode);
+  roomsEl.style.display = roomMode ? "flex" : "none";
+  usersEl.style.display = roomMode ? "none" : "flex";
+  createRoomFormEl.style.display = roomMode ? "grid" : "none";
+  sidebarTitleEl.textContent = roomMode ? "Чаты" : "Личные переписки";
+  messagesEl.innerHTML = "";
+}
+
 function updateAuthUi() {
   const isAuthed = Boolean(currentUser);
   authUserEl.textContent = isAuthed ? `Пользователь: ${currentUser}` : "Не авторизован";
@@ -46,6 +66,10 @@ function updateAuthUi() {
   authFormEl.style.display = isAuthed ? "none" : "grid";
   if (isAuthed) {
     authPasswordEl.value = "";
+  }
+  if (!isAuthed) {
+    currentDmUser = "";
+    usersEl.innerHTML = "";
   }
 }
 
@@ -105,6 +129,31 @@ function renderRooms() {
   }
 }
 
+function renderUsers() {
+  usersEl.innerHTML = "";
+  const visibleUsers = users.filter((u) => u !== currentUser);
+  for (const username of visibleUsers) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `room-btn${username === currentDmUser ? " active" : ""}`;
+    btn.textContent = username;
+    btn.addEventListener("click", () => {
+      if (!currentUser) return;
+      if (ws.readyState !== WebSocket.OPEN) return;
+      currentDmUser = username;
+      localStorage.setItem("chat_dm_user", currentDmUser);
+      renderUsers();
+      ws.send(
+        JSON.stringify({
+          type: "switch_dm",
+          withUser: username,
+        })
+      );
+    });
+    usersEl.append(btn);
+  }
+}
+
 const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
 const ws = new WebSocket(`${wsProtocol}//${location.host}`);
 
@@ -143,6 +192,16 @@ ws.addEventListener("message", (event) => {
       return;
     }
 
+    if (data.type === "users" && Array.isArray(data.payload)) {
+      users = data.payload;
+      const hasCurrentDm = users.includes(currentDmUser) && currentDmUser !== currentUser;
+      if (!hasCurrentDm) {
+        currentDmUser = "";
+      }
+      renderUsers();
+      return;
+    }
+
     if (
       data.type === "room_history" &&
       data.payload &&
@@ -156,9 +215,42 @@ ws.addEventListener("message", (event) => {
       return;
     }
 
+    if (
+      data.type === "dm_history" &&
+      data.payload &&
+      typeof data.payload.withUser === "string" &&
+      Array.isArray(data.payload.history)
+    ) {
+      currentDmUser = data.payload.withUser;
+      localStorage.setItem("chat_dm_user", currentDmUser);
+      renderUsers();
+      if (chatMode === "dm") {
+        messagesEl.innerHTML = "";
+        data.payload.history.forEach((item) => {
+          appendMessage({
+            username: item.from,
+            text: item.text,
+            createdAt: item.createdAt,
+          });
+        });
+      }
+      return;
+    }
+
     if (data.type === "message" && data.payload) {
-      if (data.payload.roomId !== currentRoomId) return;
+      if (chatMode !== "room" || data.payload.roomId !== currentRoomId) return;
       appendMessage(data.payload);
+      return;
+    }
+
+    if (data.type === "dm_message" && data.payload && data.payload.message) {
+      const peer = data.payload.withUser;
+      if (chatMode !== "dm" || peer !== currentDmUser) return;
+      appendMessage({
+        username: data.payload.message.from,
+        text: data.payload.message.text,
+        createdAt: data.payload.message.createdAt,
+      });
     }
   } catch (error) {
     console.error("Incoming message parse failed:", error);
@@ -173,13 +265,27 @@ formEl.addEventListener("submit", (event) => {
   if (!currentUser || !text) return;
   if (ws.readyState !== WebSocket.OPEN) return;
 
-  ws.send(
-    JSON.stringify({
-      type: "message",
-      roomId: currentRoomId,
-      text,
-    })
-  );
+  if (chatMode === "room") {
+    ws.send(
+      JSON.stringify({
+        type: "message",
+        roomId: currentRoomId,
+        text,
+      })
+    );
+  } else {
+    if (!currentDmUser) {
+      alert("Выберите пользователя для личной переписки.");
+      return;
+    }
+    ws.send(
+      JSON.stringify({
+        type: "dm_message",
+        toUser: currentDmUser,
+        text,
+      })
+    );
+  }
 
   messageEl.value = "";
   messageEl.focus();
@@ -235,4 +341,19 @@ themeBtnEl.addEventListener("click", () => {
   applyTheme(currentTheme === "light" ? "dark" : "light");
 });
 
+modeRoomsBtnEl.addEventListener("click", () => {
+  setChatMode("room");
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: "switch_room", roomId: currentRoomId }));
+  }
+});
+
+modeDmsBtnEl.addEventListener("click", () => {
+  setChatMode("dm");
+  if (ws.readyState === WebSocket.OPEN && currentDmUser) {
+    ws.send(JSON.stringify({ type: "switch_dm", withUser: currentDmUser }));
+  }
+});
+
 updateAuthUi();
+setChatMode(chatMode);

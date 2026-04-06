@@ -80,6 +80,26 @@ body {
   color: var(--muted);
 }
 
+.mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.mode-btn {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: rgba(18, 29, 49, 0.72);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.mode-btn.active {
+  border-color: #5f8fff;
+  background: linear-gradient(180deg, #28407a, #1b2f5f);
+}
+
 .rooms-list {
   overflow-y: auto;
   display: flex;

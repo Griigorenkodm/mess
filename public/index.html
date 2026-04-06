@@ -41,8 +41,13 @@
 
       <section class="chat-layout">
         <aside class="rooms-panel">
-          <div class="rooms-title">Чаты</div>
+          <div class="mode-switch">
+            <button id="mode-rooms-btn" class="mode-btn active" type="button">Чаты</button>
+            <button id="mode-dms-btn" class="mode-btn" type="button">Личные</button>
+          </div>
+          <div id="sidebar-title" class="rooms-title">Чаты</div>
           <div id="rooms" class="rooms-list"></div>
+          <div id="users" class="rooms-list" style="display: none"></div>
           <form id="create-room-form" class="create-room-form">
             <input
               id="room-name"
