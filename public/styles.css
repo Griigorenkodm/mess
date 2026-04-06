@@ -57,6 +57,33 @@ body {
   box-shadow: 0 20px 80px rgba(0, 0, 0, 0.45);
 }
 
+.messenger-shell {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: 0;
+}
+
+.auth-screen {
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  min-height: 0;
+}
+
+.auth-form-screen {
+  width: min(500px, 100%);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  grid-template-columns: 1fr;
+  background: rgba(17, 28, 46, 0.72);
+}
+
+.auth-form-screen h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
 .chat-layout {
   display: grid;
   grid-template-columns: minmax(220px, 280px) 1fr;
@@ -188,7 +215,6 @@ body {
 
 .auth-form {
   padding: 12px 14px;
-  border-bottom: 1px solid var(--border);
   display: grid;
   gap: 8px;
   grid-template-columns: 1fr 1fr auto auto;

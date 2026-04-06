@@ -17,6 +17,8 @@ const themeBtnEl = document.getElementById("theme-btn");
 const modeRoomsBtnEl = document.getElementById("mode-rooms-btn");
 const modeDmsBtnEl = document.getElementById("mode-dms-btn");
 const sidebarTitleEl = document.getElementById("sidebar-title");
+const authScreenEl = document.getElementById("auth-screen");
+const messengerShellEl = document.getElementById("messenger-shell");
 
 const savedName = localStorage.getItem("chat_auth_username");
 if (savedName) authUsernameEl.value = savedName;
@@ -63,7 +65,8 @@ function updateAuthUi() {
   logoutBtnEl.disabled = !isAuthed;
   messageEl.disabled = !isAuthed;
   formEl.querySelector("button[type='submit']").disabled = !isAuthed;
-  authFormEl.style.display = isAuthed ? "none" : "grid";
+  authScreenEl.style.display = isAuthed ? "none" : "grid";
+  messengerShellEl.style.display = isAuthed ? "grid" : "none";
   if (isAuthed) {
     authPasswordEl.value = "";
   }
