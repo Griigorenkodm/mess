@@ -455,50 +455,57 @@ body[data-theme="dark"] .mode-btn.active {
 
 @media (min-width: 901px) {
   body {
-    padding: 18px;
-    background: radial-gradient(1200px 800px at 20% 10%, #eef6ff, var(--bg));
+    padding: 16px;
+    background: radial-gradient(1100px 700px at 15% 10%, #eef6ff, var(--bg));
   }
 
   .app {
-    height: calc(100dvh - 36px);
-    max-width: 1320px;
+    height: calc(100dvh - 32px);
+    max-width: 1400px;
     margin: 0 auto;
-    border-radius: 18px;
-    box-shadow: 0 18px 60px rgba(16, 42, 67, 0.16);
+    border-radius: 22px;
+    box-shadow:
+      0 22px 70px rgba(16, 42, 67, 0.16),
+      0 2px 0 rgba(255, 255, 255, 0.2) inset;
     overflow: hidden;
+    backdrop-filter: blur(10px);
+  }
+
+  .app-header {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(10px);
   }
 
   .chat-layout {
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: 360px 1fr;
   }
 
   .rooms-panel {
-    padding: 14px;
+    padding: 14px 14px 12px;
     gap: 12px;
-    background: linear-gradient(180deg, var(--sidebar), rgba(244, 247, 251, 0.7));
+    background: linear-gradient(180deg, rgba(244, 247, 251, 0.95), rgba(244, 247, 251, 0.65));
   }
 
   .chat-pane {
-    padding: 0 18px;
-    background: linear-gradient(180deg, rgba(234, 243, 252, 0.65), rgba(230, 238, 247, 0.25));
+    padding: 0 22px;
+    background: linear-gradient(180deg, rgba(234, 243, 252, 0.45), rgba(230, 238, 247, 0.12));
   }
 
   .messages {
-    max-width: 860px;
-    padding: 18px 14px;
+    max-width: 920px;
+    padding: 22px 16px;
     margin: 0 auto;
-    border-left: 1px solid rgba(0, 0, 0, 0);
-    border-right: 1px solid rgba(0, 0, 0, 0);
     background: transparent;
   }
 
   .chat-form {
-    max-width: 860px;
-    margin: 10px auto 14px;
-    border: 1px solid var(--border);
-    border-radius: 16px;
+    max-width: 920px;
+    margin: 12px auto 18px;
+    border: 1px solid rgba(219, 229, 240, 0.9);
+    border-radius: 18px;
     padding: 10px;
-    box-shadow: 0 8px 22px rgba(16, 42, 67, 0.08);
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 12px 30px rgba(16, 42, 67, 0.1);
   }
 
   .chat-form .input {
@@ -514,19 +521,39 @@ body[data-theme="dark"] .mode-btn.active {
   }
 
   body[data-theme="dark"] .chat-form {
-    background: rgba(31, 44, 56, 0.85);
+    background: rgba(31, 44, 56, 0.7);
+    border-color: rgba(44, 58, 71, 0.9);
+  }
+
+  body[data-theme="dark"] .app-header {
+    background: rgba(23, 33, 43, 0.72);
   }
 }
 
 @media (max-width: 900px) {
   body {
     padding: 0;
+    background: #0f1720;
   }
 
   .app {
     width: 100%;
     height: 100dvh;
     border-radius: 0;
+  }
+
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: rgba(23, 33, 43, 0.88);
+    backdrop-filter: blur(10px);
+    border-bottom-color: rgba(44, 58, 71, 0.9);
+  }
+
+  body:not([data-theme="dark"]) .app-header {
+    background: rgba(255, 255, 255, 0.92);
+    border-bottom-color: rgba(219, 229, 240, 0.9);
   }
 
   .chat-layout {
@@ -536,17 +563,18 @@ body[data-theme="dark"] .mode-btn.active {
 
   .rooms-panel {
     border-right: none;
-    padding: 10px;
-    gap: 8px;
+    padding: 14px 12px 12px;
+    gap: 12px;
     min-height: 0;
+    background: var(--surface);
   }
 
   .rooms-list {
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    gap: 8px;
-    padding-bottom: 2px;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    gap: 10px;
+    padding-bottom: 8px;
   }
 
   .stack-list .room-btn {
@@ -555,16 +583,22 @@ body[data-theme="dark"] .mode-btn.active {
   }
 
   .room-btn {
-    min-width: 130px;
-    white-space: nowrap;
+    min-width: 0;
+    white-space: normal;
+    border-radius: 16px;
+    padding: 12px;
   }
 
   .create-room-form {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr 96px;
+    position: sticky;
+    bottom: 0;
+    padding-top: 10px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0), var(--surface) 40%);
   }
 
   .create-room-form .send-btn {
-    min-width: 110px;
+    min-width: 0;
   }
 
   .auth-form {
@@ -579,8 +613,10 @@ body[data-theme="dark"] .mode-btn.active {
     gap: 6px;
   }
 
+  /* Mobile: drawer-like chats list and full chat screen */
   .chat-pane {
     display: none;
+    padding: 0;
   }
 
   .messenger-shell.chat-open .rooms-panel {
@@ -593,6 +629,38 @@ body[data-theme="dark"] .mode-btn.active {
 
   .mobile-chat-topbar {
     display: flex;
+  }
+
+  .mobile-chat-topbar {
+    position: sticky;
+    top: 56px;
+    z-index: 4;
+    background: var(--surface);
+  }
+
+  .messages {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    padding: 16px 12px 10px;
+    background: transparent;
+  }
+
+  .chat-form {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    border-radius: 0;
+    padding: 10px 12px;
+    background: var(--surface);
+    box-shadow: 0 -10px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .chat-form {
+    grid-template-columns: 1fr 60px;
   }
 }
 
