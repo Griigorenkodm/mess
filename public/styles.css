@@ -62,9 +62,15 @@ body {
   border: 1px solid var(--border);
   border-radius: 0;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto 1fr;
   overflow: hidden;
   box-shadow: none;
+}
+
+.auth-screen,
+.messenger-shell {
+  grid-row: 2;
+  min-height: 0;
 }
 
 .messenger-shell {
