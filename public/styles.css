@@ -352,6 +352,9 @@ body {
   gap: 6px;
   grid-template-columns: minmax(180px, 1fr) 60px;
   background: #ffffff;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .chat-form .send-btn {
@@ -366,6 +369,7 @@ body {
 .input {
   border: 1px solid #cfdbea;
   border-radius: 16px;
+  height: 32px;
   min-height: 32px;
   padding: 5px 10px;
   outline: none;
