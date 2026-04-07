@@ -2,6 +2,12 @@
   box-sizing: border-box;
 }
 
+:root,
+html,
+body {
+  height: 100%;
+}
+
 :root {
   --bg: #dbe7f2;
   --surface: #ffffff;
@@ -44,21 +50,21 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100dvh;
-  padding: 10px;
+  padding: 0;
 }
 
 .app {
-  width: min(700px, 100%);
-  height: calc(100dvh - 20px);
-  min-height: 700px;
-  margin: 0 auto;
+  width: 100%;
+  height: 100dvh;
+  min-height: 0;
+  margin: 0;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: 0;
   display: grid;
   grid-template-rows: auto 1fr auto;
   overflow: hidden;
-  box-shadow: 0 8px 30px rgba(16, 42, 67, 0.12);
+  box-shadow: none;
 }
 
 .messenger-shell {
@@ -402,13 +408,13 @@ body[data-theme="dark"] .mode-btn.active {
 
 @media (max-width: 900px) {
   body {
-    padding: 8px;
+    padding: 0;
   }
 
   .app {
     width: 100%;
-    height: calc(100dvh - 16px);
-    border-radius: 10px;
+    height: 100dvh;
+    border-radius: 0;
   }
 
   .chat-layout {
