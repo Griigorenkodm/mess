@@ -20,12 +20,14 @@ const sidebarTitleEl = document.getElementById("sidebar-title");
 const authScreenEl = document.getElementById("auth-screen");
 const messengerShellEl = document.getElementById("messenger-shell");
 const backToListBtnEl = document.getElementById("back-to-list-btn");
+const chatCurrentTitleEl = document.getElementById("chat-current-title");
 
 const savedName = localStorage.getItem("chat_auth_username");
 if (savedName) authUsernameEl.value = savedName;
 
 let rooms = [];
 let users = [];
+let dmContacts = [];
 let currentRoomId = localStorage.getItem("chat_room_id") || "general";
 let currentDmUser = localStorage.getItem("chat_dm_user") || "";
 let currentUser = null;
@@ -36,6 +38,15 @@ let isChatOpen = false;
 function updateMainView(openChat) {
   isChatOpen = Boolean(openChat);
   messengerShellEl.classList.toggle("chat-open", isChatOpen);
+}
+
+function updateChatTitle() {
+  if (chatMode === "room") {
+    const room = rooms.find((r) => r.id === currentRoomId);
+    chatCurrentTitleEl.textContent = room ? room.name : "Выберите чат";
+    return;
+  }
+  chatCurrentTitleEl.textContent = currentDmUser || "Выберите переписку";
 }
 
 function applyTheme(theme) {
@@ -64,6 +75,7 @@ function setChatMode(nextMode) {
   createRoomFormEl.style.display = roomMode ? "grid" : "none";
   sidebarTitleEl.textContent = roomMode ? "Чаты" : "Личные переписки";
   messagesEl.innerHTML = "";
+  updateChatTitle();
 }
 
 function updateAuthUi() {
@@ -79,9 +91,11 @@ function updateAuthUi() {
   }
   if (!isAuthed) {
     currentDmUser = "";
+    dmContacts = [];
     usersEl.innerHTML = "";
     updateMainView(false);
   }
+  updateChatTitle();
 }
 
 function formatTime(isoString) {
@@ -178,8 +192,7 @@ function renderRooms() {
 
 function renderUsers() {
   usersEl.innerHTML = "";
-  const visibleUsers = users.filter((u) => u !== currentUser);
-  for (const username of visibleUsers) {
+  for (const username of dmContacts) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = `room-btn${username === currentDmUser ? " active" : ""}`;
@@ -191,6 +204,7 @@ function renderUsers() {
       localStorage.setItem("chat_dm_user", currentDmUser);
       renderUsers();
       updateMainView(true);
+      updateChatTitle();
       ws.send(
         JSON.stringify({
           type: "switch_dm",
@@ -199,6 +213,13 @@ function renderUsers() {
       );
     });
     usersEl.append(btn);
+  }
+
+  if (!dmContacts.length) {
+    const empty = document.createElement("div");
+    empty.className = "rooms-title";
+    empty.textContent = "Нет переписок";
+    usersEl.append(empty);
   }
 }
 
@@ -242,11 +263,16 @@ ws.addEventListener("message", (event) => {
 
     if (data.type === "users" && Array.isArray(data.payload)) {
       users = data.payload;
-      const hasCurrentDm = users.includes(currentDmUser) && currentDmUser !== currentUser;
-      if (!hasCurrentDm) {
+      return;
+    }
+
+    if (data.type === "dm_contacts" && Array.isArray(data.payload)) {
+      dmContacts = data.payload;
+      if (currentDmUser && !dmContacts.includes(currentDmUser)) {
         currentDmUser = "";
       }
       renderUsers();
+      updateChatTitle();
       return;
     }
 
@@ -259,6 +285,7 @@ ws.addEventListener("message", (event) => {
       localStorage.setItem("chat_room_id", currentRoomId);
       renderRooms();
       updateMainView(true);
+      updateChatTitle();
       messagesEl.innerHTML = "";
       data.payload.history.forEach((message) =>
         appendMessage({
@@ -280,6 +307,7 @@ ws.addEventListener("message", (event) => {
       localStorage.setItem("chat_dm_user", currentDmUser);
       renderUsers();
       updateMainView(true);
+      updateChatTitle();
       if (chatMode === "dm") {
         messagesEl.innerHTML = "";
         data.payload.history.forEach((item) => {
@@ -449,6 +477,7 @@ window.addEventListener("resize", () => {
 
 updateAuthUi();
 setChatMode(chatMode);
+updateChatTitle();
 if (window.innerWidth > 900) {
   updateMainView(true);
 } else {

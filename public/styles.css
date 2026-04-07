@@ -107,6 +107,16 @@ body {
   padding: 8px 10px;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-current-title {
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .rooms-panel {
@@ -151,6 +161,12 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.stack-list {
+  flex-direction: column !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
 }
 
 .room-btn {
@@ -412,6 +428,11 @@ body[data-theme="dark"] .mode-btn.active {
     overflow-y: hidden;
     gap: 8px;
     padding-bottom: 2px;
+  }
+
+  .stack-list .room-btn {
+    min-width: 100%;
+    white-space: normal;
   }
 
   .room-btn {

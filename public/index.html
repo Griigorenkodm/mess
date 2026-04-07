@@ -51,7 +51,7 @@
             </div>
             <div id="sidebar-title" class="rooms-title">Чаты</div>
             <div id="rooms" class="rooms-list"></div>
-            <div id="users" class="rooms-list" style="display: none"></div>
+            <div id="users" class="rooms-list stack-list" style="display: none"></div>
             <form id="create-room-form" class="create-room-form">
               <input
                 id="room-name"
@@ -68,6 +68,7 @@
           <section id="chat-pane" class="chat-pane">
             <div class="mobile-chat-topbar">
               <button id="back-to-list-btn" class="theme-btn" type="button">Назад к чатам</button>
+              <div id="chat-current-title" class="chat-current-title">Выберите чат</div>
             </div>
             <section id="messages" class="messages" aria-live="polite"></section>
             <form id="chat-form" class="chat-form" autocomplete="off">

@@ -259,6 +259,30 @@ function sendDmToUser(user, payload) {
   }
 }
 
+function dmContactsForUser(username) {
+  const result = [];
+  for (const [key, history] of dmStore.entries()) {
+    if (!Array.isArray(history) || history.length === 0) continue;
+    const parts = key.split("::");
+    if (parts.length !== 2) continue;
+    const [a, b] = parts;
+    if (username !== a && username !== b) continue;
+    const otherUser = username === a ? b : a;
+    const lastMessage = history[history.length - 1];
+    result.push({ username: otherUser, lastAt: lastMessage.createdAt });
+  }
+
+  result.sort((x, y) => y.lastAt.localeCompare(x.lastAt));
+  return result.map((item) => item.username);
+}
+
+function sendDmContacts(user) {
+  sendDmToUser(user, {
+    type: "dm_contacts",
+    payload: dmContactsForUser(user),
+  });
+}
+
 function makeRoomId(name) {
   const base = name
     .toLowerCase()
@@ -360,6 +384,7 @@ wss.on("connection", (ws) => {
             type: "auth_state",
             payload: { username },
           });
+          sendDmContacts(username);
           sendBotMessage(
             ws,
             ws.roomId,
@@ -382,6 +407,7 @@ wss.on("connection", (ws) => {
           type: "auth_state",
           payload: { username },
         });
+        sendDmContacts(username);
         sendBotMessage(
           ws,
           ws.roomId,
@@ -476,6 +502,8 @@ wss.on("connection", (ws) => {
             message,
           },
         });
+        sendDmContacts(ws.user);
+        sendDmContacts(toUser);
         return;
       }
 
@@ -505,6 +533,8 @@ wss.on("connection", (ws) => {
           type: "dm_message_deleted",
           payload: { withUser: ws.user, messageId },
         });
+        sendDmContacts(ws.user);
+        sendDmContacts(withUser);
         return;
       }
 
