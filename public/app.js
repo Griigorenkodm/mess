@@ -19,6 +19,7 @@ const modeDmsBtnEl = document.getElementById("mode-dms-btn");
 const sidebarTitleEl = document.getElementById("sidebar-title");
 const authScreenEl = document.getElementById("auth-screen");
 const messengerShellEl = document.getElementById("messenger-shell");
+const backToListBtnEl = document.getElementById("back-to-list-btn");
 
 const savedName = localStorage.getItem("chat_auth_username");
 if (savedName) authUsernameEl.value = savedName;
@@ -30,6 +31,12 @@ let currentDmUser = localStorage.getItem("chat_dm_user") || "";
 let currentUser = null;
 let roomRestored = false;
 let chatMode = localStorage.getItem("chat_mode") === "dm" ? "dm" : "room";
+let isChatOpen = false;
+
+function updateMainView(openChat) {
+  isChatOpen = Boolean(openChat);
+  messengerShellEl.classList.toggle("chat-open", isChatOpen);
+}
 
 function applyTheme(theme) {
   const normalized = theme === "light" ? "light" : "dark";
@@ -73,6 +80,7 @@ function updateAuthUi() {
   if (!isAuthed) {
     currentDmUser = "";
     usersEl.innerHTML = "";
+    updateMainView(false);
   }
 }
 
@@ -156,6 +164,7 @@ function renderRooms() {
       currentRoomId = room.id;
       localStorage.setItem("chat_room_id", currentRoomId);
       renderRooms();
+      updateMainView(true);
       ws.send(
         JSON.stringify({
           type: "switch_room",
@@ -181,6 +190,7 @@ function renderUsers() {
       currentDmUser = username;
       localStorage.setItem("chat_dm_user", currentDmUser);
       renderUsers();
+      updateMainView(true);
       ws.send(
         JSON.stringify({
           type: "switch_dm",
@@ -248,6 +258,7 @@ ws.addEventListener("message", (event) => {
       currentRoomId = data.payload.roomId;
       localStorage.setItem("chat_room_id", currentRoomId);
       renderRooms();
+      updateMainView(true);
       messagesEl.innerHTML = "";
       data.payload.history.forEach((message) =>
         appendMessage({
@@ -268,6 +279,7 @@ ws.addEventListener("message", (event) => {
       currentDmUser = data.payload.withUser;
       localStorage.setItem("chat_dm_user", currentDmUser);
       renderUsers();
+      updateMainView(true);
       if (chatMode === "dm") {
         messagesEl.innerHTML = "";
         data.payload.history.forEach((item) => {
@@ -411,6 +423,7 @@ themeBtnEl.addEventListener("click", () => {
 
 modeRoomsBtnEl.addEventListener("click", () => {
   setChatMode("room");
+  updateMainView(false);
   if (ws.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify({ type: "switch_room", roomId: currentRoomId }));
   }
@@ -418,10 +431,26 @@ modeRoomsBtnEl.addEventListener("click", () => {
 
 modeDmsBtnEl.addEventListener("click", () => {
   setChatMode("dm");
+  updateMainView(false);
   if (ws.readyState === WebSocket.OPEN && currentDmUser) {
     ws.send(JSON.stringify({ type: "switch_dm", withUser: currentDmUser }));
   }
 });
 
+backToListBtnEl.addEventListener("click", () => {
+  updateMainView(false);
+});
+
+window.addEventListener("resize", () => {
+  if (window.innerWidth > 900) {
+    updateMainView(true);
+  }
+});
+
 updateAuthUi();
 setChatMode(chatMode);
+if (window.innerWidth > 900) {
+  updateMainView(true);
+} else {
+  updateMainView(false);
+}

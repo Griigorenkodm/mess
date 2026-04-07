@@ -65,20 +65,24 @@
             </form>
           </aside>
 
-          <section id="messages" class="messages" aria-live="polite"></section>
+          <section id="chat-pane" class="chat-pane">
+            <div class="mobile-chat-topbar">
+              <button id="back-to-list-btn" class="theme-btn" type="button">Назад к чатам</button>
+            </div>
+            <section id="messages" class="messages" aria-live="polite"></section>
+            <form id="chat-form" class="chat-form" autocomplete="off">
+              <input
+                id="message"
+                class="input"
+                type="text"
+                maxlength="500"
+                placeholder="Введите сообщение..."
+                required
+              />
+              <button class="send-btn" type="submit">Отправить</button>
+            </form>
+          </section>
         </section>
-
-        <form id="chat-form" class="chat-form" autocomplete="off">
-          <input
-            id="message"
-            class="input"
-            type="text"
-            maxlength="500"
-            placeholder="Введите сообщение..."
-            required
-          />
-          <button class="send-btn" type="submit">Отправить</button>
-        </form>
       </section>
     </main>
 
