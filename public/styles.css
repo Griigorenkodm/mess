@@ -453,6 +453,71 @@ body[data-theme="dark"] .mode-btn.active {
   cursor: not-allowed;
 }
 
+@media (min-width: 901px) {
+  body {
+    padding: 18px;
+    background: radial-gradient(1200px 800px at 20% 10%, #eef6ff, var(--bg));
+  }
+
+  .app {
+    height: calc(100dvh - 36px);
+    max-width: 1320px;
+    margin: 0 auto;
+    border-radius: 18px;
+    box-shadow: 0 18px 60px rgba(16, 42, 67, 0.16);
+    overflow: hidden;
+  }
+
+  .chat-layout {
+    grid-template-columns: 320px 1fr;
+  }
+
+  .rooms-panel {
+    padding: 14px;
+    gap: 12px;
+    background: linear-gradient(180deg, var(--sidebar), rgba(244, 247, 251, 0.7));
+  }
+
+  .chat-pane {
+    padding: 0 18px;
+    background: linear-gradient(180deg, rgba(234, 243, 252, 0.65), rgba(230, 238, 247, 0.25));
+  }
+
+  .messages {
+    max-width: 860px;
+    padding: 18px 14px;
+    margin: 0 auto;
+    border-left: 1px solid rgba(0, 0, 0, 0);
+    border-right: 1px solid rgba(0, 0, 0, 0);
+    background: transparent;
+  }
+
+  .chat-form {
+    max-width: 860px;
+    margin: 10px auto 14px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 10px;
+    box-shadow: 0 8px 22px rgba(16, 42, 67, 0.08);
+  }
+
+  .chat-form .input {
+    border-radius: 14px;
+  }
+
+  .chat-form .send-btn {
+    border-radius: 14px;
+  }
+
+  body[data-theme="dark"] .chat-pane {
+    background: linear-gradient(180deg, rgba(25, 39, 52, 0.7), rgba(23, 33, 43, 0.3));
+  }
+
+  body[data-theme="dark"] .chat-form {
+    background: rgba(31, 44, 56, 0.85);
+  }
+}
+
 @media (max-width: 900px) {
   body {
     padding: 0;
