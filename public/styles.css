@@ -362,12 +362,15 @@ body {
 .chat-form {
   padding: 8px 10px;
   border-top: 1px solid var(--border);
-  display: flex;
+  display: grid;
   gap: 6px;
   align-items: center;
   grid-template-columns: minmax(180px, 1fr) 60px;
   background: #ffffff;
-  
+  max-width: 760px;
+  width: 100%;
+  height: 60px;
+  float: inline-end;
   margin: 0 auto;
 }
 
