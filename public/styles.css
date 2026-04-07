@@ -128,6 +128,7 @@ body {
   grid-template-rows: auto 1fr auto;
   min-height: 0;
   height: 100%;
+  padding: 0 24px;
 }
 
 .mobile-chat-topbar {
@@ -309,6 +310,9 @@ body {
   gap: 12px;
   background: linear-gradient(180deg, #eaf3fc, #e6eef7);
   min-height: 0;
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .message {
@@ -360,16 +364,16 @@ body {
   border-top: 1px solid var(--border);
   display: grid;
   gap: 6px;
-  height: 60px;
+  align-items: center;
   grid-template-columns: minmax(180px, 1fr) 60px;
   background: #ffffff;
-  max-width: 720px;
+  max-width: 760px;
   width: 100%;
   margin: 0 auto;
 }
 
 .chat-form .send-btn {
-  width: 65px;
+  width: 60px;
   height: 32px;
   padding-left: 0;
   padding-right: 0;
@@ -377,12 +381,16 @@ body {
   font-size: 12px;
 }
 
+.chat-form .input {
+  height: 32px;
+  min-height: 32px;
+}
+
 .input {
   border: 1px solid #cfdbea;
   border-radius: 16px;
-  height: 32px;
-  min-height: 10px;
-  padding: 5px 10px;
+  min-height: 34px;
+  padding: 6px 10px;
   outline: none;
   background: #ffffff;
   color: var(--text);
