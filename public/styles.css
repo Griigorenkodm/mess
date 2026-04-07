@@ -48,7 +48,7 @@ body {
 }
 
 .app {
-  width: min(1240px, 100%);
+  width: min(700px, 100%);
   height: calc(100dvh - 20px);
   min-height: 700px;
   margin: 0 auto;
@@ -327,19 +327,19 @@ body {
 }
 
 .chat-form {
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-top: 1px solid var(--border);
   display: grid;
-  gap: 8px;
-  grid-template-columns: 1fr auto;
+  gap: 6px;
+  grid-template-columns: minmax(180px, 1fr) auto;
   background: #ffffff;
 }
 
 .input {
   border: 1px solid #cfdbea;
-  border-radius: 20px;
-  min-height: 42px;
-  padding: 9px 14px;
+  border-radius: 16px;
+  min-height: 34px;
+  padding: 6px 10px;
   outline: none;
   background: #ffffff;
   color: var(--text);
@@ -353,12 +353,13 @@ body {
 
 .send-btn {
   border: none;
-  border-radius: 20px;
-  padding: 10px 18px;
+  border-radius: 14px;
+  padding: 6px 12px;
   cursor: pointer;
   background: linear-gradient(180deg, var(--accent), var(--accent-dark));
   color: #ffffff;
   font-weight: 600;
+  font-size: 13px;
   transition: 0.2s ease;
 }
 
