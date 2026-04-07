@@ -409,6 +409,27 @@ wss.on("connection", (ws) => {
         return;
       }
 
+      if (data.type === "delete_message") {
+        if (!ws.user) return;
+        const roomId = typeof data.roomId === "string" ? data.roomId.trim() : "";
+        const messageId =
+          typeof data.messageId === "string" ? data.messageId.trim() : "";
+        if (!roomId || !messageId || !rooms.has(roomId)) return;
+
+        const room = rooms.get(roomId);
+        const idx = room.history.findIndex((m) => m.id === messageId);
+        if (idx < 0) return;
+        if (room.history[idx].username !== ws.user) return;
+
+        room.history.splice(idx, 1);
+        schedulePersist();
+        broadcastToRoom(roomId, {
+          type: "message_deleted",
+          payload: { roomId, messageId },
+        });
+        return;
+      }
+
       if (data.type === "dm_message") {
         if (!ws.user) {
           sendToClient(ws, {
@@ -454,6 +475,35 @@ wss.on("connection", (ws) => {
             withUser: ws.user,
             message,
           },
+        });
+        return;
+      }
+
+      if (data.type === "delete_dm_message") {
+        if (!ws.user) return;
+        const withUser =
+          typeof data.withUser === "string" ? data.withUser.trim() : "";
+        const messageId =
+          typeof data.messageId === "string" ? data.messageId.trim() : "";
+        if (!withUser || !messageId || !users.has(withUser)) return;
+
+        const key = dmKey(ws.user, withUser);
+        const history = dmStore.get(key) || [];
+        const idx = history.findIndex((m) => m.id === messageId);
+        if (idx < 0) return;
+        if (history[idx].from !== ws.user) return;
+
+        history.splice(idx, 1);
+        dmStore.set(key, history);
+        schedulePersist();
+
+        sendDmToUser(ws.user, {
+          type: "dm_message_deleted",
+          payload: { withUser, messageId },
+        });
+        sendDmToUser(withUser, {
+          type: "dm_message_deleted",
+          payload: { withUser: ws.user, messageId },
         });
         return;
       }

@@ -21,17 +21,21 @@
   --radius-md: 12px;
 }
 
-body[data-theme="light"] {
+body[data-theme="dark"] {
   --bg: #dbe7f2;
-  --surface: #ffffff;
-  --sidebar: #f4f7fb;
-  --border: #dbe5f0;
-  --text: #1f2d3d;
-  --muted: #6b7d93;
-  --accent: #3390ec;
-  --accent-dark: #287fd3;
-  --bubble-in: #ffffff;
-  --bubble-out: #dff1ff;
+  --surface: #17212b;
+  --sidebar: #1f2c38;
+  --border: #2c3a47;
+  --text: #deebf5;
+  --muted: #89a0b5;
+  --accent: #5aa9ff;
+  --accent-dark: #3b8de6;
+  --bubble-in: #233546;
+  --bubble-out: #2b5278;
+  --ok-bg: #1f4d3a;
+  --ok-text: #cbffe8;
+  --danger-bg: #5a2b2b;
+  --danger-text: #ffdede;
 }
 
 body {
@@ -46,6 +50,7 @@ body {
 .app {
   width: min(1240px, 100%);
   height: calc(100dvh - 20px);
+  min-height: 700px;
   margin: 0 auto;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -258,6 +263,17 @@ body {
   align-self: flex-start;
 }
 
+.message-delete-btn {
+  margin-left: auto;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 2px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
 .message-meta {
   display: flex;
   gap: 8px;
@@ -319,6 +335,33 @@ body {
 
 .send-btn:hover {
   filter: brightness(1.08);
+}
+
+body[data-theme="dark"] .messages {
+  background: linear-gradient(180deg, #192734, #17212b);
+}
+
+body[data-theme="dark"] .auth-screen {
+  background: linear-gradient(180deg, #1f2c38, #17212b);
+}
+
+body[data-theme="dark"] .auth-form-screen,
+body[data-theme="dark"] .app-header,
+body[data-theme="dark"] .chat-form,
+body[data-theme="dark"] .theme-btn,
+body[data-theme="dark"] .logout-btn,
+body[data-theme="dark"] .room-btn,
+body[data-theme="dark"] .mode-btn,
+body[data-theme="dark"] .input {
+  color: var(--text);
+  background: #1f2c38;
+  border-color: var(--border);
+}
+
+body[data-theme="dark"] .mode-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 
 .send-btn:disabled,

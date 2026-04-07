@@ -83,9 +83,16 @@ function formatTime(isoString) {
   });
 }
 
+function removeMessageFromView(messageId) {
+  if (!messageId) return;
+  const item = messagesEl.querySelector(`[data-message-id="${messageId}"]`);
+  if (item) item.remove();
+}
+
 function appendMessage(message) {
   const item = document.createElement("article");
   item.className = "message";
+  if (message.id) item.dataset.messageId = message.id;
 
   const meta = document.createElement("div");
   meta.className = "message-meta";
@@ -103,6 +110,34 @@ function appendMessage(message) {
   const text = document.createElement("p");
   text.className = "message-text";
   text.textContent = message.text;
+
+  if (message.canDelete && message.id) {
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "message-delete-btn";
+    delBtn.textContent = "Удалить";
+    delBtn.addEventListener("click", () => {
+      if (ws.readyState !== WebSocket.OPEN) return;
+      if (message.kind === "dm") {
+        ws.send(
+          JSON.stringify({
+            type: "delete_dm_message",
+            withUser: message.withUser,
+            messageId: message.id,
+          })
+        );
+      } else {
+        ws.send(
+          JSON.stringify({
+            type: "delete_message",
+            roomId: message.roomId,
+            messageId: message.id,
+          })
+        );
+      }
+    });
+    meta.append(delBtn);
+  }
 
   item.append(meta, text);
   messagesEl.append(item);
@@ -214,7 +249,13 @@ ws.addEventListener("message", (event) => {
       localStorage.setItem("chat_room_id", currentRoomId);
       renderRooms();
       messagesEl.innerHTML = "";
-      data.payload.history.forEach(appendMessage);
+      data.payload.history.forEach((message) =>
+        appendMessage({
+          ...message,
+          kind: "room",
+          canDelete: message.username === currentUser,
+        })
+      );
       return;
     }
 
@@ -231,9 +272,13 @@ ws.addEventListener("message", (event) => {
         messagesEl.innerHTML = "";
         data.payload.history.forEach((item) => {
           appendMessage({
+            id: item.id,
             username: item.from,
             text: item.text,
             createdAt: item.createdAt,
+            kind: "dm",
+            withUser: data.payload.withUser,
+            canDelete: item.from === currentUser,
           });
         });
       }
@@ -242,7 +287,11 @@ ws.addEventListener("message", (event) => {
 
     if (data.type === "message" && data.payload) {
       if (chatMode !== "room" || data.payload.roomId !== currentRoomId) return;
-      appendMessage(data.payload);
+      appendMessage({
+        ...data.payload,
+        kind: "room",
+        canDelete: data.payload.username === currentUser,
+      });
       return;
     }
 
@@ -250,10 +299,26 @@ ws.addEventListener("message", (event) => {
       const peer = data.payload.withUser;
       if (chatMode !== "dm" || peer !== currentDmUser) return;
       appendMessage({
+        id: data.payload.message.id,
         username: data.payload.message.from,
         text: data.payload.message.text,
         createdAt: data.payload.message.createdAt,
+        kind: "dm",
+        withUser: peer,
+        canDelete: data.payload.message.from === currentUser,
       });
+      return;
+    }
+
+    if (data.type === "message_deleted" && data.payload) {
+      if (data.payload.roomId !== currentRoomId) return;
+      removeMessageFromView(data.payload.messageId);
+      return;
+    }
+
+    if (data.type === "dm_message_deleted" && data.payload) {
+      if (chatMode !== "dm" || data.payload.withUser !== currentDmUser) return;
+      removeMessageFromView(data.payload.messageId);
     }
   } catch (error) {
     console.error("Incoming message parse failed:", error);
