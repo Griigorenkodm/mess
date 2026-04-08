@@ -1,4 +1,4 @@
-/* Mobile-first messenger UI (phone + desktop) */
+/* Messenger UI — green theme (mobile + desktop) */
 * {
   box-sizing: border-box;
 }
@@ -9,35 +9,35 @@ body {
 }
 
 :root {
-  --bg: #0f1720;
-  --surface: #121c26;
-  --surface-2: #152231;
+  --bg: #07130d;
+  --surface: #0b1a12;
+  --surface-2: #0e2117;
   --card: rgba(255, 255, 255, 0.06);
-  --border: rgba(255, 255, 255, 0.08);
-  --text: #e7f1fb;
-  --muted: rgba(231, 241, 251, 0.65);
-  --accent: #4fa7ff;
-  --accent-2: #2e7de6;
+  --border: rgba(255, 255, 255, 0.09);
+  --text: #e9fff3;
+  --muted: rgba(233, 255, 243, 0.62);
+
+  --accent: #22c55e; /* green-500 */
+  --accent-2: #16a34a; /* green-600 */
+  --accent-3: rgba(34, 197, 94, 0.14);
+
   --ok-bg: rgba(34, 197, 94, 0.18);
   --ok-text: #bff7d2;
   --danger-bg: rgba(239, 68, 68, 0.18);
   --danger-text: #ffd0d0;
 
-  --r-lg: 18px;
-  --r-md: 14px;
+  --r-lg: 20px;
+  --r-md: 16px;
   --r-sm: 12px;
   --shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
-}
-
-body[data-theme="dark"] {
-  /* keep same palette; app is already dark-first */
 }
 
 body {
   margin: 0;
   font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
-  background: radial-gradient(1200px 700px at 20% 0%, rgba(79, 167, 255, 0.18), transparent 60%),
-    radial-gradient(900px 600px at 80% 20%, rgba(46, 125, 230, 0.14), transparent 55%),
+  background:
+    radial-gradient(1200px 700px at 18% 0%, rgba(34, 197, 94, 0.18), transparent 58%),
+    radial-gradient(900px 620px at 85% 18%, rgba(22, 163, 74, 0.14), transparent 55%),
     var(--bg);
   color: var(--text);
 }
@@ -59,7 +59,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 12px;
-  background: rgba(18, 28, 38, 0.78);
+  background: rgba(11, 26, 18, 0.78);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
 }
@@ -107,8 +107,7 @@ body {
 /* Buttons / inputs */
 .theme-btn,
 .logout-btn,
-.mode-btn,
-.send-btn {
+.mode-btn {
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.06);
   color: var(--text);
@@ -120,7 +119,16 @@ body {
 .send-btn {
   border: none;
   background: linear-gradient(180deg, var(--accent), var(--accent-2));
-  font-weight: 700;
+  color: #052012;
+  font-weight: 800;
+  border-radius: 14px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.mode-btn.active {
+  border-color: rgba(34, 197, 94, 0.55);
+  background: var(--accent-3);
 }
 
 .send-btn:disabled,
@@ -142,12 +150,12 @@ body {
 }
 
 .input::placeholder {
-  color: rgba(231, 241, 251, 0.45);
+  color: rgba(233, 255, 243, 0.42);
 }
 
 .input:focus {
-  border-color: rgba(79, 167, 255, 0.55);
-  box-shadow: 0 0 0 3px rgba(79, 167, 255, 0.16);
+  border-color: rgba(34, 197, 94, 0.55);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.16);
 }
 
 /* Auth screen */
@@ -165,7 +173,7 @@ body {
 
 .auth-form-screen {
   width: min(520px, 100%);
-  background: rgba(18, 28, 38, 0.78);
+  background: rgba(11, 26, 18, 0.78);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: 16px;
@@ -195,10 +203,6 @@ body {
 }
 
 /* Messenger layout */
-.messenger-shell {
-  min-height: 0;
-}
-
 .chat-layout {
   display: grid;
   grid-template-columns: 1fr;
@@ -212,7 +216,7 @@ body {
   grid-template-rows: auto auto 1fr auto;
   gap: 12px;
   padding: 14px 12px 12px;
-  background: rgba(18, 28, 38, 0.6);
+  background: rgba(11, 26, 18, 0.62);
   border-right: 1px solid var(--border);
 }
 
@@ -220,11 +224,6 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-}
-
-.mode-btn.active {
-  border-color: rgba(79, 167, 255, 0.55);
-  background: rgba(79, 167, 255, 0.15);
 }
 
 .rooms-title {
@@ -254,8 +253,8 @@ body {
 }
 
 .room-btn.active {
-  border-color: rgba(79, 167, 255, 0.55);
-  background: rgba(79, 167, 255, 0.13);
+  border-color: rgba(34, 197, 94, 0.55);
+  background: rgba(34, 197, 94, 0.12);
 }
 
 .create-room-form {
@@ -265,7 +264,7 @@ body {
   position: sticky;
   bottom: 0;
   padding-top: 10px;
-  background: linear-gradient(180deg, rgba(18, 28, 38, 0), rgba(18, 28, 38, 0.92) 40%);
+  background: linear-gradient(180deg, rgba(11, 26, 18, 0), rgba(11, 26, 18, 0.92) 40%);
 }
 
 /* Chat pane (mobile: full-screen) */
@@ -274,7 +273,7 @@ body {
   display: none;
   grid-template-rows: auto 1fr auto;
   height: 100%;
-  background: rgba(18, 28, 38, 0.35);
+  background: rgba(11, 26, 18, 0.35);
 }
 
 .messenger-shell.chat-open .rooms-panel {
@@ -291,7 +290,7 @@ body {
   gap: 10px;
   padding: 10px 12px;
   border-bottom: 1px solid var(--border);
-  background: rgba(18, 28, 38, 0.78);
+  background: rgba(11, 26, 18, 0.78);
   backdrop-filter: blur(10px);
   position: sticky;
   top: 49px;
@@ -299,7 +298,7 @@ body {
 }
 
 .chat-current-title {
-  font-weight: 700;
+  font-weight: 800;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -331,8 +330,8 @@ body {
 }
 
 .message-username {
-  font-weight: 800;
-  color: rgba(79, 167, 255, 0.9);
+  font-weight: 900;
+  color: rgba(34, 197, 94, 0.92);
 }
 
 .message-time {
@@ -363,13 +362,9 @@ body {
   gap: 10px;
   padding: 10px 12px 14px;
   border-top: 1px solid var(--border);
-  background: rgba(18, 28, 38, 0.92);
+  background: rgba(11, 26, 18, 0.92);
   position: sticky;
   bottom: 0;
-}
-
-.chat-form .input {
-  min-height: 40px;
 }
 
 .chat-form .send-btn {
@@ -379,7 +374,7 @@ body {
   border-radius: 14px;
 }
 
-/* Desktop layout */
+/* Desktop */
 @media (min-width: 901px) {
   body {
     padding: 18px;
@@ -393,14 +388,14 @@ body {
     overflow: hidden;
     box-shadow: var(--shadow);
     border: 1px solid var(--border);
-    background: rgba(18, 28, 38, 0.6);
+    background: rgba(11, 26, 18, 0.62);
     backdrop-filter: blur(10px);
   }
 
   .app-header {
     position: static;
     padding: 14px 16px;
-    background: rgba(18, 28, 38, 0.62);
+    background: rgba(11, 26, 18, 0.62);
   }
 
   .app-header h1 {
@@ -413,10 +408,9 @@ body {
 
   .rooms-panel {
     padding: 16px;
-    background: rgba(18, 28, 38, 0.55);
   }
 
-  /* On desktop chat is always visible */
+  /* desktop: chat is always visible */
   .chat-pane {
     display: grid;
   }
@@ -426,21 +420,16 @@ body {
   }
 
   .messages {
+    max-width: 980px;
+    width: 100%;
+    margin: 0 auto;
     padding: 18px 18px 10px;
   }
 
   .chat-form {
     position: static;
-    padding: 12px 18px 18px;
     background: transparent;
-    border-top: 1px solid var(--border);
-    grid-template-columns: 1fr 60px;
-    max-width: 980px;
-    width: 100%;
-    margin: 0 auto;
-  }
-
-  .messages {
+    padding: 12px 18px 18px;
     max-width: 980px;
     width: 100%;
     margin: 0 auto;
