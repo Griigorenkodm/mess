@@ -316,10 +316,16 @@ body {
 .message {
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 10px 12px;
   max-width: min(86%, 560px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.message.out {
+  align-self: flex-end;
+  background: rgba(34, 197, 94, 0.14);
+  border-color: rgba(34, 197, 94, 0.28);
 }
 
 .message-meta {
@@ -329,9 +335,17 @@ body {
   margin-bottom: 4px;
 }
 
+.message.out .message-meta {
+  justify-content: flex-end;
+}
+
 .message-username {
   font-weight: 900;
   color: rgba(34, 197, 94, 0.92);
+}
+
+.message.out .message-username {
+  display: none; /* Telegram-like: your name hidden */
 }
 
 .message-time {
@@ -382,20 +396,20 @@ body {
 
   .app {
     height: calc(100dvh - 36px);
-    max-width: 1400px;
+    max-width: 1320px;
     margin: 0 auto;
     border-radius: 22px;
     overflow: hidden;
     box-shadow: var(--shadow);
     border: 1px solid var(--border);
-    background: rgba(11, 26, 18, 0.62);
+    background: rgba(11, 26, 18, 0.72);
     backdrop-filter: blur(10px);
   }
 
   .app-header {
     position: static;
     padding: 14px 16px;
-    background: rgba(11, 26, 18, 0.62);
+    background: rgba(11, 26, 18, 0.78);
   }
 
   .app-header h1 {
@@ -403,16 +417,20 @@ body {
   }
 
   .chat-layout {
-    grid-template-columns: 380px 1fr;
+    grid-template-columns: 360px 1fr;
+    height: 100%;
   }
 
   .rooms-panel {
     padding: 16px;
+    border-right: 1px solid var(--border);
+    background: rgba(11, 26, 18, 0.62);
   }
 
   /* desktop: chat is always visible */
   .chat-pane {
     display: grid;
+    background: radial-gradient(900px 600px at 50% 0%, rgba(34, 197, 94, 0.08), transparent 55%);
   }
 
   .mobile-chat-topbar {
@@ -424,15 +442,23 @@ body {
     width: 100%;
     margin: 0 auto;
     padding: 18px 18px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 1px solid rgba(255, 255, 255, 0.04);
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 18px 18px 0 0;
   }
 
   .chat-form {
     position: static;
-    background: transparent;
-    padding: 12px 18px 18px;
+    background: rgba(11, 26, 18, 0.62);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 10px;
     max-width: 980px;
     width: 100%;
-    margin: 0 auto;
+    margin: 12px auto 16px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
   }
 
   .create-room-form {

@@ -115,6 +115,7 @@ function appendMessage(message) {
   const item = document.createElement("article");
   item.className = "message";
   if (message.id) item.dataset.messageId = message.id;
+  if (currentUser && message.username === currentUser) item.classList.add("out");
 
   const meta = document.createElement("div");
   meta.className = "message-meta";
